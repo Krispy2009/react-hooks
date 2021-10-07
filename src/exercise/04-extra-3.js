@@ -75,7 +75,7 @@ function Game() {
   }
 
   const moves = calcMoves(history, currentStep)
-
+  console.log('moves', moves)
   return (
     <div className="game">
       <div className="game-board">
@@ -93,18 +93,26 @@ function Game() {
 }
 
 function calcMoves(history, currentStep) {
+  console.log('sdfhfhsd')
   const moves = []
   let text = 'game start'
+
   history.forEach((item, idx) => {
     const curr = idx === currentStep - 1 ? '(current)' : ''
-    if (idx !== 0) {
+    if (idx === 0) {
+      moves.push(
+        <li key={0}>
+          <button disabled={Boolean(curr)}>{`Go to ${text} ${curr}`}</button>
+        </li>,
+      )
+    } else {
       text = `move #${idx}`
+      moves.push(
+        <li key={idx}>
+          <button disabled={Boolean(curr)}>{`Go to ${text} ${curr}`}</button>
+        </li>,
+      )
     }
-    moves.push(
-      <li key={idx}>
-        <button disabled={Boolean(curr)}>{`Go to ${text} ${curr}`}</button>
-      </li>,
-    )
   })
 
   return moves
