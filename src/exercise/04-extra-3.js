@@ -56,9 +56,6 @@ function Game() {
   }
 
   function selectSquare(square) {
-    // 🐨 first, if there's already winner or there's already a value at the
-    // given square index (like someone clicked a square that's already been
-    // clicked), then return early so we don't make any state changes
     if (winner || currentSquares[square]) {
       return
     }
@@ -68,14 +65,57 @@ function Game() {
     setCurrentSquares(squaresCopy)
 
     let historyCopy = [...history]
+    if (currentStep <= history.length) {
+      historyCopy.splice(currentStep, history.length - currentStep)
+    }
     historyCopy.push(currentSquares)
     setHistory(historyCopy)
 
+    calcMoves(historyCopy, currentStep)
     setCurrentStep(currentStep + 1)
   }
 
+  function onClickStep(step) {
+    setCurrentStep(step)
+    if (step >= history.length) {
+      step = history.length - 1
+    }
+    setCurrentSquares(history[step])
+  }
+
+  function calcFirstMove(curr) {
+    return (
+      <li key={0}>
+        <button
+          disabled={Boolean(curr)}
+          onClick={() => onClickStep(0)}
+        >{`Go to game start ${curr}`}</button>
+      </li>
+    )
+  }
+
+  function calcMoves(history, currentStep) {
+    const moves = []
+
+    moves.push(calcFirstMove(0 === currentStep ? '(current)' : ''))
+
+    history.forEach((item, idx) => {
+      const curr = idx === currentStep - 1 ? '(current)' : ''
+      const text = `move #${idx + 1}`
+      moves.push(
+        <li key={idx + 1}>
+          <button
+            disabled={Boolean(curr)}
+            onClick={() => onClickStep(idx + 1)}
+          >{`Go to ${text} ${curr}`}</button>
+        </li>,
+      )
+    })
+    return moves
+  }
+
   const moves = calcMoves(history, currentStep)
-  console.log('moves', moves)
+
   return (
     <div className="game">
       <div className="game-board">
@@ -90,32 +130,6 @@ function Game() {
       </div>
     </div>
   )
-}
-
-function calcMoves(history, currentStep) {
-  console.log('sdfhfhsd')
-  const moves = []
-  let text = 'game start'
-
-  history.forEach((item, idx) => {
-    const curr = idx === currentStep - 1 ? '(current)' : ''
-    if (idx === 0) {
-      moves.push(
-        <li key={0}>
-          <button disabled={Boolean(curr)}>{`Go to ${text} ${curr}`}</button>
-        </li>,
-      )
-    } else {
-      text = `move #${idx}`
-      moves.push(
-        <li key={idx}>
-          <button disabled={Boolean(curr)}>{`Go to ${text} ${curr}`}</button>
-        </li>,
-      )
-    }
-  })
-
-  return moves
 }
 
 // eslint-disable-next-line no-unused-vars
